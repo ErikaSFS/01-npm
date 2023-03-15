@@ -8,12 +8,14 @@ const Heroi = require('./heroi')
 async function main() {
     Commander
         .version('V1')
-        .option('-n, --nome[value]', "Nome do Heroi")
-        .option('-p, --poder[value]', "Poder do Heroi")
-
+        .option('-n, --nome [value]', "Nome do Heroi")
+        .option('-p, --poder [value]', "Poder do Heroi")
+        .option('-i, --id [value]', "Id do Heroi")
 
         .option('-c, --cadastrar', "Cadastrar um Heroi")
-
+        .option('-l, --listar', "Listar um heroi")
+        .option('-r, --remover', "Remover um Heroi por Id")
+        .option('-a, --atualizar [value]', "Atualizar um Heroi por Id")
 
 
         .parse(process.argv)
@@ -22,6 +24,10 @@ async function main() {
         
         try {
             if(Commander.cadastrar) {
+                delete heroi.id 
+
+
+                
                 const resultado = await Database.cadastrar(heroi)
                 if(!resultado) {
                     console.error('Heroi nao foi cadastrado!')
@@ -29,8 +35,38 @@ async function main() {
                 }
                 console.log('Heroi cadastado com sucesso!')
             }
+            if (Commander.listar) {
+                const resultado = await Database.listar()
+                console.log(resultado)
+                return;
+            }
+
+            if(Commander.remover){
+                const resultado = await Database.remover(heroi.id)
+                if(!resultado) {
+                    console.error('Nao foi possivel remover o heroi')
+                    return;
+                }
+                console.log ("Heroi removido com sucesso!")
+            }
+
+
+            if(Commander.atualizar) {
+                const idParaAtualizar = parseInt(Commander.Command.atualizar);
+                // remover todas as chaves que estiverem com undef
+                const dado = JSON.stringify(heroi)
+                const heroiAtualizar = JSON.parse(dado)
+                const resultado = await Database.atualizar(idParaAtualizar, heroiAtualizar)
+
+                if(!resultado){
+                    console.error('Nao foi possivel atualizar o heroi')
+                    return;
+                }
+                console.log('Heroi atualizado com Sucesso!')
+
+            }
         }
-            catch (error){
+            catch (error) {
                 console.error('Deu Ruim', error)
             }
 }
